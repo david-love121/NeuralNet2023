@@ -9,20 +9,29 @@ namespace NeuralNet2023
 {
     internal class NeuralNetwork
     {
-        DataReader dataReader = new DataReader();
-        public List<Layer> layers = new List<Layer>();
+
+        public List<Layer> layers;
         Layer firstLayer;
-        int[] layerSizes = { 5, 5 };
+        //Including input and output layer
+        int[] layerSizes = { 5, 5, 5, 5, 1};
    
         internal NeuralNetwork() 
         {
             firstLayer = new Layer();
+            layers = new List<Layer>();
             GenerateLayers();
             int x = 2;
             
         }
-        void Train()
+        internal void RunData(double[] inputs)
         {
+            List<Neuron> firstNeurons = firstLayer.GetNeurons();
+            for (int i = 0; i < firstNeurons.Count; i++)
+            {
+                firstNeurons[i].AddInput(inputs[i]);
+            }
+            firstLayer.RunLayersRecursive();
+            
 
         }
         private void GenerateLayers()
@@ -52,8 +61,8 @@ namespace NeuralNet2023
                 }
                 lastLayer = layer;
             }
-            Layer finalLayer = new Layer(true, lastLayer);
-            
+            firstLayer = layers[0];
+            lastLayer.setLast(true);
             return;
         } 
     }

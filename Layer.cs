@@ -3,33 +3,45 @@
    
     internal class Layer
     {
-        public List<Connector> connectors;
-        public List<Neuron> neurons;
+        List<Connector> connectors;
+        List<Neuron> neurons;
         Layer nextLayer;
-        bool last;
+        bool last; 
+
         internal Layer()
         {
             last = false;
             connectors = new List<Connector>();
             neurons = new List<Neuron>();
         }
-        internal Layer(bool last, Layer nextLayer)
+        internal Layer(bool last)
         {
             this.last = last;
             connectors = new List<Connector>();
             neurons = new List<Neuron>();
-            this.nextLayer = nextLayer; 
         }
-        internal void RunLayer(List<double> inputs)
+        internal void RunLayer()
         {
-            if (inputs.Count != connectors.Count)
-            {
-                throw new Exception("Number of inputs does not match neurons.");
-            }
             for (int i = 0; i < connectors.Count; i++)
             {
                 connectors[i].RunData();
             }
+        }
+        internal void RunLayersRecursive()
+        {
+            for (int i = 0; i < connectors.Count; i++)
+            {
+                connectors[i].RunData();
+            }
+            if (last)
+            {
+                return;
+            }
+            nextLayer.RunLayersRecursive();
+        }
+        internal void SetNextLayer(Layer layer)
+        {
+            this.nextLayer = layer;
         }
         internal void AddConnector(Connector c)
         {
@@ -42,8 +54,8 @@
         }
         internal void attachLayer(Layer layer)
         {
-            
-            this.nextLayer = layer;
+
+            layer.SetNextLayer(this);
         }
         internal List<Neuron> GetNeurons()
         {
@@ -52,6 +64,10 @@
         internal void addNeuron(Neuron neuron)
         {
             neurons.Add(neuron);
+        }
+        internal void setLast(bool last)
+        {
+            this.last = last;   
         }
     }
 }

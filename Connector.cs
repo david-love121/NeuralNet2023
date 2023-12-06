@@ -13,7 +13,7 @@ namespace NeuralNet2023
         double weight;
         internal Connector()
         {
-
+            weight = 1.0;
         }
         internal void RunData()
         {
@@ -28,6 +28,14 @@ namespace NeuralNet2023
         internal void SetSecondNeuron(Neuron neuron)
         {
             secondNeuron = neuron;
+        }
+        internal Neuron GetFirstNeuron(Neuron neuron)
+        {
+            return firstNeuron;
+        }
+        internal Neuron GetSecondNeuron(Neuron neuron)
+        {
+            return secondNeuron;
         }
     }
 }

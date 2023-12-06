@@ -5,17 +5,18 @@ namespace NeuralNet2023
     internal class Neuron
     {
         ActivationFunction activationFunction;
-        double value;
+ 
         List<double> inputs;
         List<Connector> connectors;
-        List<Connector> nextConnectors;
         public Neuron()
         {
             activationFunction = new ActivationFunction(); 
+            inputs = new List<double>();
         }
         public Neuron(ActivationFunction activationFunction)
         {
             this.activationFunction = activationFunction;
+            inputs = new List<double>();
         }
         internal double RunNeuron()
         {
@@ -33,9 +34,9 @@ namespace NeuralNet2023
         }
         internal void AddInput(double value)
         {
-            this.value = value;
+            inputs.Add(value);
         }
-        
+
         internal List<Connector> getInputConnector()
         {
             return connectors;
