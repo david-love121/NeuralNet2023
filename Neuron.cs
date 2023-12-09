@@ -5,9 +5,9 @@ namespace NeuralNet2023
     internal class Neuron
     {
         ActivationFunction activationFunction;
- 
         List<double> inputs;
         List<Connector> connectors;
+        double value;
         public Neuron()
         {
             activationFunction = new ActivationFunction(); 
@@ -25,8 +25,8 @@ namespace NeuralNet2023
             {
                 sum = sum + input;
             }
-            double nextValue = activationFunction.RunData(sum);
-            return nextValue;
+            value = activationFunction.RunData(sum);
+            return value;
         }
         internal double RunNeuron(double input)
         {
@@ -40,6 +40,10 @@ namespace NeuralNet2023
         internal List<Connector> getInputConnector()
         {
             return connectors;
+        }
+        internal double GetValue()
+        {
+            return value;
         }
 
     }

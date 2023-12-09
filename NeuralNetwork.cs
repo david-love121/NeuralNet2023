@@ -9,21 +9,22 @@ namespace NeuralNet2023
 {
     internal class NeuralNetwork
     {
-
+        VectorFunctions vf;
         public List<Layer> layers;
         Layer firstLayer;
-        //Including input and output layer
-        int[] layerSizes = { 5, 5, 5, 5, 1};
+        //Including input layer and output layer
+        int[] layerSizes = { 5, 5, 3};
+        string[] activationFunctions = { "ReLU", "ReLU", "None" };
    
         internal NeuralNetwork() 
         {
             firstLayer = new Layer();
             layers = new List<Layer>();
             GenerateLayers();
-            int x = 2;
-            
+            vf = new VectorFunctions();
+
         }
-        internal void RunData(double[] inputs)
+        internal double[] RunData(double[] inputs)
         {
             List<Neuron> firstNeurons = firstLayer.GetNeurons();
             for (int i = 0; i < firstNeurons.Count; i++)
@@ -31,8 +32,15 @@ namespace NeuralNet2023
                 firstNeurons[i].AddInput(inputs[i]);
             }
             firstLayer.RunLayersRecursive();
-            
-
+            List<Neuron> outputNeurons = layers.Last().GetNeurons();
+            double[] finalLogits = new double[outputNeurons.Count];
+            foreach (Neuron neuron in outputNeurons)
+            {
+                //Probably should be neuron.RunNeuron
+                finalLogits.Append(neuron.RunNeuron());
+            }
+            double[] output = vf.runSoftmax(finalLogits);
+            return output;
         }
         private void GenerateLayers()
         {
@@ -42,7 +50,7 @@ namespace NeuralNet2023
                 Layer layer = new Layer();
                 for (int k = 0; k < layerSizes[i]; k++)
                 {
-                    Neuron neuron = new Neuron(new ActivationFunction("ReLU"));
+                    Neuron neuron = new Neuron(new ActivationFunction(activationFunctions[i]));
                     layer.addNeuron(neuron);
                     
                 }

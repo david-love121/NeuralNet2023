@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace NeuralNet2023
     internal class ActivationFunction
     {
         string selectedFunction = "ReLU";
-        string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid" };
+        string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid", "Softmax" };
         public ActivationFunction(string t)
         {
             selectedFunction = t;
@@ -35,5 +36,6 @@ namespace NeuralNet2023
             }
             return input;
         }
+
     }
 }
