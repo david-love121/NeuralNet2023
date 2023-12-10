@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace NeuralNet2023
 {
-    internal class NeuralNetwork
+    public class NeuralNetwork
     {
         VectorFunctions vf;
-        public List<Layer> layers;
+        List<Layer> layers;
         Layer firstLayer;
         //Including input layer and output layer
-        int[] layerSizes = { 5, 5, 3};
+        int[] layerSizes = { 4, 5, 3};
         string[] activationFunctions = { "ReLU", "ReLU", "None" };
    
         internal NeuralNetwork() 
@@ -34,10 +37,9 @@ namespace NeuralNet2023
             firstLayer.RunLayersRecursive();
             List<Neuron> outputNeurons = layers.Last().GetNeurons();
             double[] finalLogits = new double[outputNeurons.Count];
-            foreach (Neuron neuron in outputNeurons)
+            for (int i = 0; i < outputNeurons.Count; i++)
             {
-                //Probably should be neuron.RunNeuron
-                finalLogits.Append(neuron.RunNeuron());
+                finalLogits[i] = outputNeurons[i].RunNeuron();
             }
             double[] output = vf.runSoftmax(finalLogits);
             return output;
@@ -51,11 +53,11 @@ namespace NeuralNet2023
                 for (int k = 0; k < layerSizes[i]; k++)
                 {
                     Neuron neuron = new Neuron(new ActivationFunction(activationFunctions[i]));
-                    layer.addNeuron(neuron);
+                    layer.AddNeuron(neuron);
                     
                 }
                 layers.Add(layer);
-                layer.attachLayer(lastLayer);
+                layer.AttachLayer(lastLayer);
                 List<Neuron> lastNeurons = lastLayer.GetNeurons();
                 foreach (Neuron n in lastNeurons)
                 {
@@ -70,8 +72,31 @@ namespace NeuralNet2023
                 lastLayer = layer;
             }
             firstLayer = layers[0];
-            lastLayer.setLast(true);
+            lastLayer.SetLast(true);
             return;
         } 
+        internal void RandomizeWeights()
+        {
+            foreach (Layer l in layers)
+            {
+                l.RandomizeWeights();
+            }
+        }
+        internal void SaveToStorage(string filePath)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(NeuralNetwork));
+            using (Stream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+            {
+                serializer.Serialize(stream, this);
+            }
+        }
+        static NeuralNetwork LoadObjectFromStorage(string filePath)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Neuron));
+            using (FileStream stream = new FileStream(filePath, FileMode.Open))
+            {
+                return (NeuralNetwork)serializer.Deserialize(stream);
+            }
+        }
     }
 }

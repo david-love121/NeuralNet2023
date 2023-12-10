@@ -37,5 +37,9 @@ namespace NeuralNet2023
         {
             return secondNeuron;
         }
+        internal void SetWeight(double weight)
+        {
+            this.weight = weight;
+        }
     }
 }

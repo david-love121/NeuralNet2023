@@ -52,7 +52,7 @@
         {
             return connectors;
         }
-        internal void attachLayer(Layer layer)
+        internal void AttachLayer(Layer layer)
         {
 
             layer.SetNextLayer(this);
@@ -61,13 +61,21 @@
         {
             return neurons;
         }
-        internal void addNeuron(Neuron neuron)
+        internal void AddNeuron(Neuron neuron)
         {
             neurons.Add(neuron);
         }
-        internal void setLast(bool last)
+        internal void SetLast(bool last)
         {
             this.last = last;   
+        }
+        internal void RandomizeWeights()
+        {
+            foreach (Connector connector in connectors)
+            {
+                Random random = new Random();
+                connector.SetWeight(random.NextDouble());
+            }
         }
     }
 }
