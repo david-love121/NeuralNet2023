@@ -17,8 +17,8 @@ namespace NeuralNet2023
         }
         internal void RunData()
         {
-            double value = firstNeuron.RunNeuron() * weight;
-            secondNeuron.AddInput(value);
+            double value = firstNeuron.RunNeuron();
+            secondNeuron.AddInput(value * weight);
         }
         
         internal void SetFirstNeuron(Neuron neuron)

@@ -24,8 +24,17 @@ namespace NeuralNet2023
             firstLayer = new Layer();
             layers = new List<Layer>();
             GenerateLayers();
+            double[] testData = { 0.5, 0.3, 0.3, 0.7, 0.1 };
             vf = new VectorFunctions();
 
+        }
+        internal void SetFirst(double[] inputs)
+        {
+            List<Neuron> firstNeurons = firstLayer.GetNeurons();
+            for (int i = 0; i < firstNeurons.Count; i++)
+            {
+                firstNeurons[i].AddInput(inputs[i]);
+            }
         }
         internal double[] RunData(double[] inputs)
         {
@@ -42,6 +51,7 @@ namespace NeuralNet2023
                 finalLogits[i] = outputNeurons[i].RunNeuron();
             }
             double[] output = vf.runSoftmax(finalLogits);
+            Reset();
             return output;
         }
         private void GenerateLayers()
@@ -80,6 +90,16 @@ namespace NeuralNet2023
             foreach (Layer l in layers)
             {
                 l.RandomizeWeights();
+            }
+        }
+        internal void Reset()
+        {
+            foreach (Layer l in layers)
+            {
+                foreach (Neuron n in l.GetNeurons())
+                {
+                    n.resetNeuron();
+                }
             }
         }
         internal void SaveToStorage(string filePath)

@@ -26,6 +26,7 @@ namespace NeuralNet2023
                 sum = sum + input;
             }
             value = activationFunction.RunData(sum);
+
             return value;
         }
         internal double RunNeuron(double input)
@@ -45,6 +46,9 @@ namespace NeuralNet2023
         {
             return value;
         }
-
+        internal void resetNeuron()
+        {
+            inputs.Clear();
+        }
     }
 }

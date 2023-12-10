@@ -18,11 +18,37 @@ namespace NeuralNet2023
         {
             dataReader = new DataReader();
             neuralNetwork = new NeuralNetwork();
+
+        }
+        internal void Test(int numTests)
+        {
+            double[,] features = dataReader.GetFeatures();
+            string[] answers = dataReader.GetAnswers();
+            Random random = new Random();
+            for (int i = 0; i < numTests; i++)
+            {
+                int rowInd = (int)random.NextInt64(150);
+                double[] output = neuralNetwork.RunData(dataReader.GetRow(rowInd));
+                double[] normalizedOutput = new double[output.Length];
+                double highestProbability = 0;
+                int indHighest = 0;
+                for (int k = 0; k < output.Length; k++)
+                {
+                    if (output[k] > highestProbability)
+                    {
+                        highestProbability = output[k];
+                        indHighest = k;
+                    }
+                }
+                Console.WriteLine($"Test {i}: Running row {rowInd} Prediction: {dataReader.GetClassifications()[indHighest]} Answer: {answers[rowInd]}");
+            }
+            
+
         }
         internal void Train()
         {
             double highestScore = 0.0;
-            int numTests = 10;
+            int numTests = 1000;
             for (int i = 0; i < numTests; i++) 
             {
                 double[] results = Run();
@@ -31,10 +57,11 @@ namespace NeuralNet2023
                 {
                     highestScore = score;
                     bestNetwork = neuralNetwork;
+                    Console.WriteLine($"New best score: {highestScore}");
                 }
                 neuralNetwork.RandomizeWeights();
             }
-            bestNetwork.SaveToStorage("./lastNetwork.xml");
+            bestNetwork.SaveToStorage("C:/Users/David/source/repos/NeuralNet2023/lastNetwork.xml");
             int x = 2;
             
         }
@@ -49,6 +76,7 @@ namespace NeuralNet2023
             int totalPredictions = 0;
             for (int i = 0; i < dataReader.Height; i++)
             {
+                
                 int indHighest = 0;
                 double[] output = neuralNetwork.RunData(dataReader.GetRow(i));
                 double[] normalizedOutput = new double[output.Length];
@@ -69,8 +97,10 @@ namespace NeuralNet2023
                     correctPredictions++;
                 }
                 totalPredictions++;
+                //reset neural net
             }
             double[] finalScore = {totalPredictions, correctPredictions};
+            
             return finalScore;
             
             

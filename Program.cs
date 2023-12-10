@@ -13,6 +13,7 @@ namespace NeuralNet2023 {
         static void Main(string[] args) {
             Driver driver = new Driver();
             driver.Train();
+            driver.Test(10);
 
         }
         
