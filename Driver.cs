@@ -12,13 +12,19 @@ namespace NeuralNet2023
     internal class Driver
     {
         DataReader dataReader;
-        NeuralNetwork neuralNetwork;
-        NeuralNetwork bestNetwork;
+        internal NeuralNetwork neuralNetwork;
+        internal NeuralNetwork bestNetwork;
+        List<string> guesses = new List<string>();
+        List<bool> guessesBool = new List<bool>();
         internal Driver()
         {
             dataReader = new DataReader();
             neuralNetwork = new NeuralNetwork();
-
+        }
+        internal Driver(string objectPath)
+        {
+            dataReader = new DataReader();
+            neuralNetwork = NeuralNetwork.LoadObjectFromStorage(objectPath);
         }
         internal void Test(int numTests)
         {
@@ -48,38 +54,50 @@ namespace NeuralNet2023
         internal void Train()
         {
             double highestScore = 0.0;
-            int numTests = 1000;
+            int numTests = 1000000;
+            double score;
             for (int i = 0; i < numTests; i++) 
             {
-                double[] results = Run();
-                double score = results[1] / results[0];
+                double[] results = Run(false);
+                score = results[1] / results[0];
                 if (score > highestScore)
                 {
                     highestScore = score;
-                    bestNetwork = neuralNetwork;
                     Console.WriteLine($"New best score: {highestScore}");
+                    bestNetwork = new NeuralNetwork(neuralNetwork);
                 }
                 neuralNetwork.RandomizeWeights();
             }
-            bestNetwork.SaveToStorage("C:/Users/David/source/repos/NeuralNet2023/lastNetwork.xml");
-            int x = 2;
-            
+            //bestNetwork.SaveToStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork2.xml");
+            //NeuralNetwork checkNetwork = NeuralNetwork.LoadObjectFromStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.xml");
+            //bool check = ReferenceEquals(checkNetwork, bestNetwork);
+            neuralNetwork = new NeuralNetwork(bestNetwork);
+
+
         }
-        internal double[] Run()
+        internal double[] Run(bool useBest)
         {
-            double[] testData = { 0.5, 0.3, 0.3, 0.7, 0.1 };
+            bool check = ReferenceEquals(bestNetwork, neuralNetwork);
+            guesses.Clear();
+            guessesBool.Clear();
             List<string> allData = dataReader.GetData();
             double[,] features = dataReader.GetFeatures();
             string[] answers = dataReader.GetAnswers();
-            neuralNetwork.RandomizeWeights();
             int correctPredictions = 0;
             int totalPredictions = 0;
+            double[] output;
             for (int i = 0; i < dataReader.Height; i++)
             {
                 
                 int indHighest = 0;
-                double[] output = neuralNetwork.RunData(dataReader.GetRow(i));
-                double[] normalizedOutput = new double[output.Length];
+                if (useBest)
+                {
+                    output = bestNetwork.RunData(dataReader.GetRow(i));
+                }
+                else
+                {
+                    output = neuralNetwork.RunData(dataReader.GetRow(i));
+                }
                 double highestProbability = 0;
                 for (int k = 0; k < output.Length; k++)
                 {
@@ -90,13 +108,15 @@ namespace NeuralNet2023
                     }
 
                 }
-                normalizedOutput[indHighest] = 1;
                 string selectedClass = dataReader.GetClassifications()[indHighest];
                 if (selectedClass == answers[i])
                 {
                     correctPredictions++;
+                   
                 }
                 totalPredictions++;
+                guesses.Add(selectedClass);
+                guessesBool.Add(selectedClass == answers[i]);
                 //reset neural net
             }
             double[] finalScore = {totalPredictions, correctPredictions};

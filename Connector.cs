@@ -15,6 +15,12 @@ namespace NeuralNet2023
         {
             weight = 1.0;
         }
+        internal Connector(Connector original)
+        {
+            this.firstNeuron = null;
+            this.secondNeuron = null;
+            this.weight = original.weight;
+        }
         internal void RunData()
         {
             double value = firstNeuron.RunNeuron();
@@ -29,11 +35,11 @@ namespace NeuralNet2023
         {
             secondNeuron = neuron;
         }
-        internal Neuron GetFirstNeuron(Neuron neuron)
+        internal Neuron GetFirstNeuron()
         {
             return firstNeuron;
         }
-        internal Neuron GetSecondNeuron(Neuron neuron)
+        internal Neuron GetSecondNeuron()
         {
             return secondNeuron;
         }

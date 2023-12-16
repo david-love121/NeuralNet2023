@@ -6,17 +6,26 @@ namespace NeuralNet2023
     {
         ActivationFunction activationFunction;
         List<double> inputs;
-        List<Connector> connectors;
         double value;
-        public Neuron()
+        internal Neuron()
         {
             activationFunction = new ActivationFunction(); 
             inputs = new List<double>();
         }
-        public Neuron(ActivationFunction activationFunction)
+        internal Neuron(ActivationFunction activationFunction)
         {
             this.activationFunction = activationFunction;
             inputs = new List<double>();
+        }
+        internal Neuron(Neuron original)
+        {
+            this.activationFunction = new ActivationFunction(original.activationFunction);
+            this.inputs = new List<double>();
+            foreach (double d in original.inputs)
+            {
+                inputs.Add(d);
+            }
+            this.value = original.value;
         }
         internal double RunNeuron()
         {
@@ -38,10 +47,6 @@ namespace NeuralNet2023
             inputs.Add(value);
         }
 
-        internal List<Connector> getInputConnector()
-        {
-            return connectors;
-        }
         internal double GetValue()
         {
             return value;

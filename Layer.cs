@@ -6,8 +6,8 @@
         List<Connector> connectors;
         List<Neuron> neurons;
         Layer nextLayer;
-        bool last; 
-
+        bool last;
+        Random random = new Random();
         internal Layer()
         {
             last = false;
@@ -19,6 +19,17 @@
             this.last = last;
             connectors = new List<Connector>();
             neurons = new List<Neuron>();
+        }
+        internal Layer(Layer original)
+        {
+            this.last = original.last;
+            this.connectors = new List<Connector>();
+            this.neurons = new List<Neuron>();
+            foreach (Neuron neuron in original.neurons)
+            {
+                Neuron newNeuron = new Neuron(neuron);
+                this.neurons.Add(newNeuron);
+            }
         }
         internal void RunLayer()
         {
@@ -52,11 +63,6 @@
         {
             return connectors;
         }
-        internal void AttachLayer(Layer layer)
-        {
-
-            layer.SetNextLayer(this);
-        }
         internal List<Neuron> GetNeurons()
         {
             return neurons;
@@ -73,8 +79,23 @@
         {
             foreach (Connector connector in connectors)
             {
-                Random random = new Random();
                 connector.SetWeight(random.NextDouble());
+            }
+        }
+        internal void AttachConnectors(Layer lastLayer, List<Connector> originalConnectors)
+        {
+            int currentConnector = 0;
+            List<Neuron> lastNeurons = lastLayer.GetNeurons();
+            for (int i = 0; i < lastLayer.GetNeurons().Count; i++)
+            {
+                for (int k = 0; k < neurons.Count; k++)
+                {
+                    Connector newConnector = new Connector(originalConnectors[currentConnector]);
+                    newConnector.SetFirstNeuron(lastNeurons[i]);
+                    newConnector.SetSecondNeuron(neurons[k]);
+                    connectors.Add(newConnector);
+                    currentConnector = currentConnector + 1;
+                }
             }
         }
     }

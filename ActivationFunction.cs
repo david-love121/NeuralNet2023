@@ -20,6 +20,11 @@ namespace NeuralNet2023
         {
             selectedFunction = "None";
         }
+        internal ActivationFunction(ActivationFunction original)
+        {
+            this.selectedFunction = original.selectedFunction;
+            this.types = original.types;
+        }
         public double RunData(double input)
         {
             if (selectedFunction == "ReLU")

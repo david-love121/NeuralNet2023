@@ -14,7 +14,7 @@ namespace NeuralNet2023
         string currentDirectory = Directory.GetCurrentDirectory();
         string dataPath = "./data/iris.data";
         readonly string[] names = { "sepalLength", "septalWidth", "petalLength", "petalWidth", "classification" };
-        readonly string[] classifications = { "Iris-setosa", "Iris-veriscolour", "Iris-virginica" };
+        readonly string[] classifications = { "Iris-setosa", "Iris-versicolor", "Iris-virginica" };
         double[,] features;
         string[] answers;
         internal readonly int Width;
