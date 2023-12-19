@@ -12,6 +12,7 @@ using System.Text.Json;
 
 namespace NeuralNet2023
 {
+    
     public class NeuralNetwork
     {
         VectorFunctions vf;
@@ -20,6 +21,7 @@ namespace NeuralNet2023
         //Including input layer and output layer
         int[] layerSizes = { 4, 5, 3};
         string[] activationFunctions = { "ReLU", "ReLU", "None" };
+        double[]? weights;
         internal NeuralNetwork() 
         {
             firstLayer = new Layer();
@@ -28,6 +30,7 @@ namespace NeuralNet2023
             double[] testData = { 0.5, 0.3, 0.3, 0.7, 0.1 };
             vf = new VectorFunctions();
         }
+        //Used for constructing a new NeuralNetwork object from memory
         internal NeuralNetwork(NeuralNetwork original)
         {
             this.vf = new VectorFunctions();
@@ -37,6 +40,18 @@ namespace NeuralNet2023
             this.layerSizes = original.layerSizes;
             this.activationFunctions = original.activationFunctions;
         }
+        //Used for constructing a new Neuralnetwork object from storage
+        internal NeuralNetwork(NeuralNetworkMetadata neuralNetworkMetadata)
+        {
+            this.vf = new VectorFunctions();
+            layers = new List<Layer>();
+            firstLayer = new Layer();
+            weights = neuralNetworkMetadata.weights;
+            layerSizes = neuralNetworkMetadata.layerSizes;
+            activationFunctions= neuralNetworkMetadata.activationFunctions;
+            GenerateLayers();
+        }
+
         internal void SetFirst(double[] inputs)
         {
             List<Neuron> firstNeurons = firstLayer.GetNeurons();
@@ -65,7 +80,8 @@ namespace NeuralNet2023
         }
         private void GenerateLayers()
         {
-            Layer lastLayer = firstLayer; 
+            Layer lastLayer = firstLayer;
+            int count = 0;
             for (int i = 0; i < layerSizes.Count(); i++)
             {
                 Layer layer = new Layer();
@@ -82,10 +98,19 @@ namespace NeuralNet2023
                 {
                     foreach (Neuron n2 in layer.GetNeurons())
                     {
-                        Connector connector = new Connector();
+                        Connector connector;
+                        if (weights == null)
+                        {
+                            connector = new Connector();
+                        }
+                        else
+                        {
+                            connector = new Connector(weights[count]);
+                        }
                         connector.SetFirstNeuron(n);
                         connector.SetSecondNeuron(n2);
                         layer.AddConnector(connector);
+                        count++;
                     }
                 }
                 lastLayer = layer;
@@ -93,10 +118,13 @@ namespace NeuralNet2023
             firstLayer = layers[0];
             lastLayer.SetLast(true);
             return;
-        } 
+        }
+       
+        //This overload is used when you are generating from a neuralNetwork that already exists
+
         private void GenerateLayers(List<Layer> original)
         {
-            Layer lastLayer = null;
+            Layer? lastLayer = null;
             for (int i = 0; i < original.Count; i++)
             {
                 Layer layer = new Layer(original[i]);
@@ -128,23 +156,53 @@ namespace NeuralNet2023
                 l.RandomizeWeights();
             }
         }
+        internal int[] GetLayerSizes()
+        {
+            return layerSizes;
+        }
+        internal string[] GetActivationFunctions()
+        {
+            return activationFunctions;
+        }
+        internal List<Layer> GetLayers()
+        {
+            return layers;
+        }
+        internal double[] GetWeightsArray()
+        {
+            List<double> weightsList = new List<double>();
+            foreach (Layer layer in layers)
+            {
+                foreach (Connector connector in layer.GetConnectors())
+                {
+                    weightsList.Add(connector.GetWeight());
+                }
+            }
+            double[] finalWeights = weightsList.ToArray();
+            return finalWeights;
+        }
         //Only works properly with public getters and setters, need to find a way 
         //To just save metadata to disk
         internal void SaveToStorage(string filePath)
         {
-            string outputString = JsonSerializer.Serialize(this);
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "lastNetworkJSON.txt")))
+            NeuralNetworkMetadata metadata = new NeuralNetworkMetadata(this);
+            string outputString = JsonSerializer.Serialize(metadata);
+            NeuralNetworkMetadata metadata2 = JsonSerializer.Deserialize<NeuralNetworkMetadata>(outputString);
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath)))
             {
                 outputFile.WriteLine(outputString); 
             }
         }
         internal static NeuralNetwork LoadObjectFromStorage(string filePath)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(NeuralNetwork));
-            using (FileStream stream = new FileStream(filePath, FileMode.Open))
+            string json;
+            using (StreamReader reader = new StreamReader(filePath))
             {
-                return (NeuralNetwork)serializer.Deserialize(stream);
+                json = reader.ReadToEnd();
             }
+            NeuralNetworkMetadata metadata = JsonSerializer.Deserialize<NeuralNetworkMetadata>(json);
+            NeuralNetwork finalNetwork = new NeuralNetwork(metadata);
+            return finalNetwork;
         }
     }
 }

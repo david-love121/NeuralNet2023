@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,11 +16,9 @@ namespace NeuralNet2023
         {
             weight = 1.0;
         }
-        internal Connector(Connector original)
+        internal Connector(double weight)
         {
-            this.firstNeuron = null;
-            this.secondNeuron = null;
-            this.weight = original.weight;
+            this.weight = weight;
         }
         internal void RunData()
         {
@@ -46,6 +45,10 @@ namespace NeuralNet2023
         internal void SetWeight(double weight)
         {
             this.weight = weight;
+        }
+        internal double GetWeight()
+        {
+            return weight;
         }
     }
 }

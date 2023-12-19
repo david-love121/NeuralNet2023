@@ -9,7 +9,6 @@ namespace NeuralNet2023
 {
     internal class DataReader
     {
-
         List<string> allData = new List<string>();
         string currentDirectory = Directory.GetCurrentDirectory();
         string dataPath = "./data/iris.data";

@@ -48,13 +48,11 @@ namespace NeuralNet2023
                 }
                 Console.WriteLine($"Test {i}: Running row {rowInd} Prediction: {dataReader.GetClassifications()[indHighest]} Answer: {answers[rowInd]}");
             }
-            
-
         }
         internal void Train()
         {
             double highestScore = 0.0;
-            int numTests = 1000000;
+            int numTests = 1000;
             double score;
             for (int i = 0; i < numTests; i++) 
             {
@@ -68,7 +66,7 @@ namespace NeuralNet2023
                 }
                 neuralNetwork.RandomizeWeights();
             }
-            //bestNetwork.SaveToStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork2.xml");
+            bestNetwork.SaveToStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json");
             //NeuralNetwork checkNetwork = NeuralNetwork.LoadObjectFromStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.xml");
             //bool check = ReferenceEquals(checkNetwork, bestNetwork);
             neuralNetwork = new NeuralNetwork(bestNetwork);
@@ -80,8 +78,8 @@ namespace NeuralNet2023
             bool check = ReferenceEquals(bestNetwork, neuralNetwork);
             guesses.Clear();
             guessesBool.Clear();
-            List<string> allData = dataReader.GetData();
-            double[,] features = dataReader.GetFeatures();
+            //List<string> allData = dataReader.GetData();
+            //double[,] features = dataReader.GetFeatures();
             string[] answers = dataReader.GetAnswers();
             int correctPredictions = 0;
             int totalPredictions = 0;

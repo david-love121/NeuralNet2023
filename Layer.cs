@@ -90,7 +90,7 @@
             {
                 for (int k = 0; k < neurons.Count; k++)
                 {
-                    Connector newConnector = new Connector(originalConnectors[currentConnector]);
+                    Connector newConnector = new Connector(originalConnectors[currentConnector].GetWeight());
                     newConnector.SetFirstNeuron(lastNeurons[i]);
                     newConnector.SetSecondNeuron(neurons[k]);
                     connectors.Add(newConnector);
