@@ -94,9 +94,10 @@ namespace NeuralNet2023
                 layers.Add(layer);
                 lastLayer.SetNextLayer(layer);
                 List<Neuron> lastNeurons = lastLayer.GetNeurons();
-                foreach (Neuron n in lastNeurons)
+                List<Neuron> currentNeurons = layer.GetNeurons(); 
+                for (int countLast = 0; countLast < lastNeurons.Count; countLast++)
                 {
-                    foreach (Neuron n2 in layer.GetNeurons())
+                    for (int countCurrent = 0; countCurrent < currentNeurons.Count; countCurrent++)
                     {
                         Connector connector;
                         if (weights == null)
@@ -107,8 +108,8 @@ namespace NeuralNet2023
                         {
                             connector = new Connector(weights[count]);
                         }
-                        connector.SetFirstNeuron(n);
-                        connector.SetSecondNeuron(n2);
+                        connector.SetFirstNeuron(lastNeurons[countLast], countLast);
+                        connector.SetSecondNeuron(currentNeurons[countCurrent], countCurrent);
                         layer.AddConnector(connector);
                         count++;
                     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics;
 
 namespace NeuralNet2023
 {
@@ -49,14 +50,14 @@ namespace NeuralNet2023
                 Console.WriteLine($"Test {i}: Running row {rowInd} Prediction: {dataReader.GetClassifications()[indHighest]} Answer: {answers[rowInd]}");
             }
         }
-        internal void Train()
+        
+        internal void Train(int numIterations)
         {
             double highestScore = 0.0;
-            int numTests = 1000;
             double score;
-            for (int i = 0; i < numTests; i++) 
+            for (int i = 0; i < numIterations; i++) 
             {
-                double[] results = Run(false);
+                double[] results = Run();
                 score = results[1] / results[0];
                 if (score > highestScore)
                 {
@@ -73,7 +74,7 @@ namespace NeuralNet2023
 
 
         }
-        internal double[] Run(bool useBest)
+        internal double[] Run()
         {
             bool check = ReferenceEquals(bestNetwork, neuralNetwork);
             guesses.Clear();
@@ -86,16 +87,8 @@ namespace NeuralNet2023
             double[] output;
             for (int i = 0; i < dataReader.Height; i++)
             {
-                
                 int indHighest = 0;
-                if (useBest)
-                {
-                    output = bestNetwork.RunData(dataReader.GetRow(i));
-                }
-                else
-                {
-                    output = neuralNetwork.RunData(dataReader.GetRow(i));
-                }
+                output = neuralNetwork.RunData(dataReader.GetRow(i));
                 double highestProbability = 0;
                 for (int k = 0; k < output.Length; k++)
                 {
@@ -104,24 +97,18 @@ namespace NeuralNet2023
                         highestProbability = output[k];
                         indHighest = k;
                     }
-
                 }
                 string selectedClass = dataReader.GetClassifications()[indHighest];
                 if (selectedClass == answers[i])
                 {
                     correctPredictions++;
-                   
                 }
                 totalPredictions++;
                 guesses.Add(selectedClass);
                 guessesBool.Add(selectedClass == answers[i]);
-                //reset neural net
             }
             double[] finalScore = {totalPredictions, correctPredictions};
-            
             return finalScore;
-            
-            
             //Todo: load data in from DataReader and then push into NeuralNetwork
         }
     }

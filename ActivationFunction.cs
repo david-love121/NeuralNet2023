@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace NeuralNet2023
 {
-    
     internal class ActivationFunction
     {
         string selectedFunction = "ReLU";
-        string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid", "Softmax" };
+        string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid"};
         public ActivationFunction(string t)
         {
             selectedFunction = t;

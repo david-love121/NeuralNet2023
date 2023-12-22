@@ -1,24 +1,15 @@
 ﻿
-using System.Reflection.PortableExecutable;
-using System.Runtime.CompilerServices;
-
 namespace NeuralNet2023 {
-    class Program {
-        DataReader dataReader;
-        
-        public Program()
-        {
-            
-        }
+    class Program {  
         static void Main(string[] args) {
-            Driver driver = new Driver();
-            driver.Train();
-            double[] output = driver.Run(false);
+            //Driver driver = new Driver();
+            //driver.Train(1000000);
+            //double[] output = driver.Run(false);
             //driver.Test(50);
             string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
             Driver driver2 = new Driver(path);
-            double[] check2 = driver2.Run(false);
+            double[] check2 = driver2.Run();
+            driver2.Test(50);
         }
-        
     }
 }

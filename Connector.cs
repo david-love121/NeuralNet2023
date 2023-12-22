@@ -12,6 +12,8 @@ namespace NeuralNet2023
         Neuron firstNeuron;
         Neuron secondNeuron;
         double weight;
+        int firstIndex;
+        int secondIndex;
         internal Connector()
         {
             weight = 1.0;
@@ -26,13 +28,15 @@ namespace NeuralNet2023
             secondNeuron.AddInput(value * weight);
         }
         
-        internal void SetFirstNeuron(Neuron neuron)
+        internal void SetFirstNeuron(Neuron neuron, int index)
         {
             firstNeuron = neuron;
+            firstIndex = index;
         }
-        internal void SetSecondNeuron(Neuron neuron)
+        internal void SetSecondNeuron(Neuron neuron, int index)
         {
             secondNeuron = neuron;
+            secondIndex = index;
         }
         internal Neuron GetFirstNeuron()
         {
