@@ -7,24 +7,28 @@
         List<Neuron> neurons;
         Layer nextLayer;
         bool last;
+        double bias;
         Random random = new Random();
         internal Layer()
         {
             last = false;
             connectors = new List<Connector>();
             neurons = new List<Neuron>();
+            bias = 0;
         }
         internal Layer(bool last)
         {
             this.last = last;
             connectors = new List<Connector>();
             neurons = new List<Neuron>();
+            bias = 0;
         }
         internal Layer(Layer original)
         {
             this.last = original.last;
             this.connectors = new List<Connector>();
             this.neurons = new List<Neuron>();
+            this.bias = original.bias;
             foreach (Neuron neuron in original.neurons)
             {
                 Neuron newNeuron = new Neuron(neuron);
@@ -40,6 +44,10 @@
         }
         internal void RunLayersRecursive()
         {
+            foreach (Neuron neuron in neurons)
+            {
+                neuron.AddInput(bias);
+            }
             for (int i = 0; i < connectors.Count; i++)
             {
                 connectors[i].RunData();
@@ -50,9 +58,34 @@
             }
             nextLayer.RunLayersRecursive();
         }
+        internal double[] GetNeuronValues()
+        {
+            double[] values = new double[neurons.Count];
+            for (int i = 0; i < neurons.Count; i++) {
+                values[i] = neurons[i].GetValue();
+            }
+            return values;
+        }
+        internal double[] GetNeuronPreValues()
+        {
+            double[] values = new double[neurons.Count];
+            for (int i = 0; i < neurons.Count; i++)
+            {
+                values[i] = neurons[i].GetPreactivationValue();
+            }
+            return values;
+        }
         internal void SetNextLayer(Layer layer)
         {
             this.nextLayer = layer;
+        }
+        internal double GetBias()
+        {
+            return bias;
+        }
+        internal void SetBias(double bias)
+        {
+            this.bias = bias;
         }
         internal void AddConnector(Connector c)
         {
@@ -81,6 +114,20 @@
             {
                 connector.SetWeight(random.NextDouble());
             }
+        }
+        internal double[,] GetWeightsMatrix(Layer lastLayer)
+        {
+            int count = 0;
+            double[,] finalResult = new double[lastLayer.GetNeurons().Count, this.neurons.Count];
+            for (int i = 0; i < lastLayer.GetNeurons().Count; i++)
+            {
+                for (int k = 0; k < this.neurons.Count; k++)
+                {
+                    finalResult[i, k] = connectors[count].GetWeight();
+                    count++;
+                }
+            }
+            return finalResult;
         }
         internal void AttachConnectors(Layer lastLayer, List<Connector> originalConnectors)
         {

@@ -5,7 +5,9 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace NeuralNet2023
 {
@@ -51,7 +53,7 @@ namespace NeuralNet2023
             }
         }
         
-        internal void Train(int numIterations)
+        internal void TrainEvolutionBased(int numIterations, bool saveToStorage)
         {
             double highestScore = 0.0;
             double score;
@@ -67,12 +69,40 @@ namespace NeuralNet2023
                 }
                 neuralNetwork.RandomizeWeights();
             }
-            bestNetwork.SaveToStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json");
+            if (saveToStorage)
+            {
+                bestNetwork.SaveToStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json");
+            }
             //NeuralNetwork checkNetwork = NeuralNetwork.LoadObjectFromStorage("C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.xml");
             //bool check = ReferenceEquals(checkNetwork, bestNetwork);
             neuralNetwork = new NeuralNetwork(bestNetwork);
-
-
+        }
+        internal void TrainBackpropogationBased(int epochs, bool saveToStorage)
+        {
+            Random random = new Random();
+            int row = random.Next(dataReader.Height);
+            (double[] resultsArray, double[] hotCodedArray) = RunSingular(row);
+            Vector<double> results = Vector<double>.Build.DenseOfArray(resultsArray);
+            Vector<double> hotCoded = Vector<double>.Build.DenseOfArray(hotCodedArray);
+            //Where a is a neuron's value post activation, n the value pre activation, w the weight, b the bias
+            //L indicates a layer and after a variable indicates its a vector of a layer's values (unless it's a standalone value)
+            List<Layer> layers = neuralNetwork.GetLayers();
+            int finalIndex = layers.Count;
+            Layer currentLayer = layers[finalIndex - 1];
+            Vector<double> zL = Vector<double>.Build.DenseOfArray(currentLayer.GetNeuronPreValues());
+            Vector<double> aL = Vector<double>.Build.DenseOfArray(currentLayer.GetNeuronValues());
+            double[,] weightsArr = currentLayer.GetWeightsMatrix(layers[finalIndex - 2]);
+            Matrix<double> wL = Matrix<double>.Build.DenseOfArray(weightsArr);
+            double bL = currentLayer.GetBias();
+            Vector<double> dadz = DerivativeReLU(zL);
+            Vector<double> dcda = results - hotCoded;
+            double db = dadz * dcda;
+            int x = 2;
+        }
+        static internal Vector<double> DerivativeReLU(Vector<double> value)
+        {
+            Vector<double> result = value.Map(value => value > 0 ? 1.0 : 0.0);
+            return result;
         }
         internal double[] Run()
         {
@@ -110,6 +140,37 @@ namespace NeuralNet2023
             double[] finalScore = {totalPredictions, correctPredictions};
             return finalScore;
             //Todo: load data in from DataReader and then push into NeuralNetwork
+        }
+        //Returns the prediction and the 1 hot coded solution vector
+        internal (double[], double[]) RunSingular(int row)
+        {
+            string[] answers = dataReader.GetAnswers();
+            double[] output = neuralNetwork.RunData(dataReader.GetRow(row));
+            double[] hotCoded = new double[output.Length];
+            double highestProbability = 0;
+            int indHighest = 0;
+            for (int i = 0; i < output.Length; i++)
+            {
+                if (output[i] > highestProbability)
+                {
+                    highestProbability = output[i];
+                    indHighest = i;
+                }
+            }
+            string[] classifications = dataReader.GetClassifications();
+            for (int k = 0; k < classifications.Length; k++)
+            {
+                if (answers[row] != classifications[k])
+                {
+                    hotCoded[k] = 0;
+                } else 
+                {
+                    hotCoded[k] = 1;
+                }
+            }
+            
+            return (output, hotCoded);
+
         }
     }
 }

@@ -22,6 +22,7 @@ namespace NeuralNet2023
         int[] layerSizes = { 4, 5, 3};
         string[] activationFunctions = { "ReLU", "ReLU", "None" };
         double[]? weights;
+        double[]? output;
         internal NeuralNetwork() 
         {
             firstLayer = new Layer();
@@ -39,6 +40,8 @@ namespace NeuralNet2023
             this.firstLayer = layers[0];
             this.layerSizes = original.layerSizes;
             this.activationFunctions = original.activationFunctions;
+            this.weights = original.weights;
+            this.output = original.output;
         }
         //Used for constructing a new Neuralnetwork object from storage
         internal NeuralNetwork(NeuralNetworkMetadata neuralNetworkMetadata)
@@ -76,6 +79,7 @@ namespace NeuralNet2023
             }
             double[] output = vf.runSoftmax(finalLogits);
             Reset();
+            SetOutputLayer(output);
             return output;
         }
         private void GenerateLayers()
@@ -146,9 +150,14 @@ namespace NeuralNet2023
             {
                 foreach (Neuron n in l.GetNeurons())
                 {
-                    n.resetNeuron();
+                    n.ResetNeuron();
                 }
             }
+            output = null;
+        }
+        internal double[] GetOutput()
+        {
+            return output;
         }
         internal void RandomizeWeights()
         {
@@ -168,6 +177,19 @@ namespace NeuralNet2023
         internal List<Layer> GetLayers()
         {
             return layers;
+        }
+        private void SetOutputLayer(double[] outputValues)
+        {
+            output = new double[layers.Last().GetNeurons().Count];
+            if (output.Length != outputValues.Length)
+            {
+                throw new ArgumentException("The new values must match the length of the final layer!");
+            }
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = outputValues[i];
+            }
+            return;
         }
         internal double[] GetWeightsArray()
         {

@@ -7,6 +7,7 @@ namespace NeuralNet2023
         ActivationFunction activationFunction;
         List<double> inputs;
         double value;
+        double valuePreactivation;
         internal Neuron()
         {
             activationFunction = new ActivationFunction(); 
@@ -26,6 +27,7 @@ namespace NeuralNet2023
                 inputs.Add(d);
             }
             this.value = original.value;
+            this.valuePreactivation = original.valuePreactivation;
         }
         internal double RunNeuron()
         {
@@ -34,8 +36,9 @@ namespace NeuralNet2023
             {
                 sum = sum + input;
             }
+            valuePreactivation = sum;
             value = activationFunction.RunData(sum);
-
+            
             return value;
         }
         internal double RunNeuron(double input)
@@ -51,9 +54,13 @@ namespace NeuralNet2023
         {
             return value;
         }
-        internal void resetNeuron()
+        internal void ResetNeuron()
         {
             inputs.Clear();
+        }
+        internal double GetPreactivationValue()
+        {
+            return valuePreactivation;
         }
     }
 }

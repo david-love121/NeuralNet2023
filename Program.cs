@@ -2,14 +2,27 @@
 namespace NeuralNet2023 {
     class Program {  
         static void Main(string[] args) {
-            //Driver driver = new Driver();
-            //driver.Train(1000000);
-            //double[] output = driver.Run(false);
-            //driver.Test(50);
+            TestBackprop();
+            
+        }
+        static void TrainNew(int numTests, bool saveToStorage)
+        {
+            Driver driver = new Driver();
+            driver.TrainEvolutionBased(numTests, saveToStorage);
+            driver.Test(1);
+        }
+        static void LoadFromStorage()
+        {
             string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
-            Driver driver2 = new Driver(path);
-            double[] check2 = driver2.Run();
-            driver2.Test(50);
+            Driver driver = new Driver(path);
+            double[] check2 = driver.Run();
+            driver.Test(50);
+        }
+        static void TestBackprop()
+        {
+            string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
+            Driver driver = new Driver(path);
+            driver.TrainBackpropogationBased(1, false);
         }
     }
 }
