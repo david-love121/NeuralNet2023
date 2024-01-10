@@ -17,17 +17,22 @@ namespace NeuralNet2023
         DataReader dataReader;
         internal NeuralNetwork neuralNetwork;
         internal NeuralNetwork bestNetwork;
-        List<string> guesses = new List<string>();
-        List<bool> guessesBool = new List<bool>();
+        List<string> guesses;
+        List<bool> guessesBool;
+        Vector<double> lastDerivativeActivation;
         internal Driver()
         {
             dataReader = new DataReader();
             neuralNetwork = new NeuralNetwork();
+            guesses = new List<string>(); 
+            guessesBool = new List<bool>();
         }
         internal Driver(string objectPath)
         {
             dataReader = new DataReader();
             neuralNetwork = NeuralNetwork.LoadObjectFromStorage(objectPath);
+            guesses = new List<string>();
+            guessesBool = new List<bool>();
         }
         internal void Test(int numTests)
         {
@@ -90,14 +95,51 @@ namespace NeuralNet2023
             int finalIndex = layers.Count;
             Layer currentLayer = layers[finalIndex - 1];
             Vector<double> zL = Vector<double>.Build.DenseOfArray(currentLayer.GetNeuronPreValues());
-            Vector<double> aL = Vector<double>.Build.DenseOfArray(currentLayer.GetNeuronValues());
             double[,] weightsArr = currentLayer.GetWeightsMatrix(layers[finalIndex - 2]);
             Matrix<double> wL = Matrix<double>.Build.DenseOfArray(weightsArr);
             double bL = currentLayer.GetBias();
             Vector<double> dadz = DerivativeReLU(zL);
-            Vector<double> dcda = results - hotCoded;
-            double db = dadz * dcda;
-            int x = 2;
+            Vector<double> cost = results - hotCoded;
+            double dcda = 0.0;
+            foreach (double d in cost)
+            {
+                dcda += d;
+            }
+            Vector<double> chain = dadz.Multiply(dcda);
+            Vector<double> dcdb = chain;
+            Vector<double> a_1L = Vector<double>.Build.DenseOfArray(layers[finalIndex - 2].GetNeuronValues());
+            List<Vector<double>> columnVector = new List<Vector<double>>();
+            for (int i = 0; i < wL.ColumnCount; i++)
+            {
+                //The weights belonging to a single a_1
+                Vector<double> weights = wL.Column(i);
+                double dzdw = a_1L[i];
+                Vector<double> newWeights = chain.Multiply(dzdw);
+                columnVector.Add(newWeights);
+            }
+            Matrix<double> newWeightsL = Matrix<double>.Build.DenseOfColumnVectors(columnVector);
+            double[] previousda = new double[a_1L.Count];
+            for (int i = 0; i < a_1L.Count; i++)
+            {
+                double a_1 = a_1L[i];
+                Vector<double> weights = wL.Column(i);
+                double value = 0.0;
+                for (int k = 0; k < dadz.Count; k++)
+                {
+                    double weight = weights[k];
+                    Vector<double> derivatives = chain.Multiply(weight);
+                    double derivative = derivatives.Sum();
+                    previousda[k] = derivative;
+                }
+            }
+            Vector<double> dcda_1L = Vector<double>.Build.DenseOfArray(previousda);
+            lastDerivativeActivation = dcda_1L;
+            //Continue to interate
+        }
+        //Use lastDerivativeActivation to continue to backpropagate 
+        private void Backpropagate()
+        {
+
         }
         static internal Vector<double> DerivativeReLU(Vector<double> value)
         {
