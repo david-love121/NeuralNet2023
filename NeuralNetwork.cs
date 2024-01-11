@@ -28,7 +28,6 @@ namespace NeuralNet2023
             firstLayer = new Layer();
             layers = new List<Layer>();
             GenerateLayers();
-            double[] testData = { 0.5, 0.3, 0.3, 0.7, 0.1 };
             vf = new VectorFunctions();
         }
         //Used for constructing a new NeuralNetwork object from memory
