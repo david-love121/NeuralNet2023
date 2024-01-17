@@ -8,7 +8,7 @@
         Layer nextLayer;
         bool last;
         double bias;
-        Random random = new Random();
+        Random random = ManagedRandom.getRandom();
         internal Layer()
         {
             last = false;
