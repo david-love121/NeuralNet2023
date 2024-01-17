@@ -38,7 +38,7 @@ namespace NeuralNet2023
         {
             double[,] features = dataReader.GetFeatures();
             string[] answers = dataReader.GetAnswers();
-            Random random = new Random();
+            Random random = ManagedRandom.getRandom();
             for (int i = 0; i < numTests; i++)
             {
                 int rowInd = (int)random.NextInt64(150);
@@ -84,7 +84,7 @@ namespace NeuralNet2023
         }
         internal void TrainBackpropogationBased(int epochs, bool saveToStorage)
         {
-            Random random = new Random();
+            Random random = ManagedRandom.getRandom();
             int row = random.Next(dataReader.Height);
             (double[] resultsArray, double[] hotCodedArray) = RunSingular(row);
             Vector<double> results = Vector<double>.Build.DenseOfArray(resultsArray);
