@@ -9,7 +9,7 @@ namespace NeuralNet2023
     
     internal class ManagedRandom
     {
-        private static Random random;
+        private static Random? random;
         internal static Random getRandom()
         {
             if (random == null)
