@@ -116,33 +116,17 @@ namespace NeuralNet2023
             }
             Matrix<double> newWeightsL = Matrix<double>.Build.DenseOfColumnVectors(columnVector);
             double[] previousda = new double[a_1L.Count];
-            List<Vector<double>> vectorList = new List<Vector<double>>();
             int count = 0;
             //Finds the derivatives of a_1
             for (int i = 0; i < a_1L.Count; i++)
             {
                 double a_1 = a_1L[i];
                 Vector<double> weights = wL.Row(i);
-
-
                 List<Vector<double>> individualWeightSums = new List<Vector<double>>();
-                //interates over the number of weights connected to each a_1
-                for (int k = 0; k < weights.Count; k++)
-                {
-                    count++;
-                    double weight = weights[k];
-                    Vector<double> derivatives = chain.Multiply(weight);
-                    individualWeightSums.Add(derivatives);
-                    //Add the vectors then store that vector every time i interates
-                }
-                
-                foreach (Vector<double> vector in individualWeightSums)
-                {
-                    
-                }
-
+                Vector<double> derivatives = chain.PointwiseMultiply(weights);
+                double da_1 = derivatives.Sum();
+                previousda[i] = da_1;
             }
-            Matrix<double> activationDerivativesMatrix = Matrix<double>.Build.DenseOfColumnVectors(vectorList);
             Vector<double> dcda_1L = Vector<double>.Build.DenseOfArray(previousda);
             lastDerivativeActivation = dcda_1L;
             //Continue to interate
