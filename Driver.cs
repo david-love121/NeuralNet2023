@@ -86,6 +86,8 @@ namespace NeuralNet2023
         {
             Random random = ManagedRandom.getRandom();
             int row = random.Next(dataReader.Height);
+            //weightDerivatives represents a list of Matrices that can be used to update the weights.
+            //derivative * weight * trainingRate = newWeight
             List<Matrix<double>> weightDerivatives = new List<Matrix<double>>();
             BackpropogateInitialRun(epochs, saveToStorage, row, ref weightDerivatives);
             int x = 2;
@@ -96,7 +98,7 @@ namespace NeuralNet2023
             Vector<double> results = Vector<double>.Build.DenseOfArray(resultsArray);
             Vector<double> hotCoded = Vector<double>.Build.DenseOfArray(hotCodedArray);
             //Where a is a neuron's value post activation, n the value pre activation, w the weight, b the bias
-            //L indicates a layer and after a variable indicates its a vector of a layer's values (unless it's a standalone value)
+            //L after a variable indicates its a vector of a layer's values, _ means index shift backwards
             List<Layer> layers = neuralNetwork.GetLayers();
             int finalIndex = layers.Count;
             Layer currentLayer = layers[finalIndex - 1];
@@ -135,8 +137,8 @@ namespace NeuralNet2023
             Vector<double> dcda_1L = Vector<double>.Build.DenseOfArray(previousda);
             lastDerivativeActivation = dcda_1L;
             newWeightsStorage.Add(newWeightsL);
-            Backpropagate(dcda_1L, finalIndex - 2, ref newWeightsStorage);
             //Continue to interate
+            Backpropagate(dcda_1L, finalIndex - 2, ref newWeightsStorage);
         }
         //Use lastDerivativeActivation to continue to backpropagate 
         private void Backpropagate(Vector<double> chain, int currentLayerInd, ref List<Matrix<double>> newWeightsStorage) {
@@ -149,6 +151,7 @@ namespace NeuralNet2023
             Vector<double> dadz = DerivativeReLU(zL);
             Vector<double> dcda = chain;
             //Vector<double> dcdb = chain;
+            chain = dadz.PointwiseMultiply(chain);
             Vector<double> a_1L = Vector<double>.Build.DenseOfArray(layers[currentLayerInd - 1].GetNeuronValues());
             List<Vector<double>> columnVector = new List<Vector<double>>();
             //Finds the new weights
