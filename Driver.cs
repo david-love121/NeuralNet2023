@@ -129,7 +129,6 @@ namespace NeuralNet2023
             {
                 double a_1 = a_1L[i];
                 Vector<double> weights = wL.Row(i);
-                List<Vector<double>> individualWeightSums = new List<Vector<double>>();
                 Vector<double> derivatives = chain.PointwiseMultiply(weights);
                 double da_1 = derivatives.Sum();
                 previousda[i] = da_1;
@@ -165,13 +164,11 @@ namespace NeuralNet2023
             }
             Matrix<double> newWeightsL = Matrix<double>.Build.DenseOfColumnVectors(columnVector);
             double[] previousda = new double[a_1L.Count];
-            int count = 0;
             //Finds the derivatives of a_1
             for (int i = 0; i < a_1L.Count; i++)
             {
                 double a_1 = a_1L[i];
                 Vector<double> weights = wL.Row(i);
-                List<Vector<double>> individualWeightSums = new List<Vector<double>>();
                 Vector<double> derivatives = chain.PointwiseMultiply(weights);
                 double da_1 = derivatives.Sum();
                 previousda[i] = da_1;
