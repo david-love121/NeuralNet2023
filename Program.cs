@@ -22,7 +22,7 @@ namespace NeuralNet2023 {
         {
             string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
             Driver driver = new Driver(path);
-            driver.TrainBackpropogationBased(1, false);
+            driver.TrainBackpropagationBased(1, 10, false);
         }
     }
 }
