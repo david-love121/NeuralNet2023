@@ -88,8 +88,17 @@ namespace NeuralNet2023
             int row = random.Next(dataReader.Height);
             //weightDerivatives represents a list of Matrices that can be used to update the weights.
             //derivative * weight * trainingRate = newWeight
+            List<List<Matrix<double>>> batchWeightDerivatives = new List<List<Matrix<double>>>();
             List<Matrix<double>> weightDerivatives = new List<Matrix<double>>();
-            BackpropogateInitialRun(epochs, saveToStorage, row, ref weightDerivatives);
+            //Memory intensive operation
+            for (int i = 0; i < epochs; i++)
+            {
+                for (int k = 0; k < batchSize; k++)
+                {
+                    BackpropogateInitialRun(epochs, saveToStorage, row + k, ref weightDerivatives);
+                }
+            }
+            //Average adjustments of entire batch
             int x = 2;
         }
         internal void BackpropogateInitialRun(int epochs, bool saveToStorage, int rowInd, ref List<Matrix<double>> newWeightsStorage)
