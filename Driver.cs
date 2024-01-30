@@ -85,11 +85,14 @@ namespace NeuralNet2023
         internal void TrainBackpropagationBased(int epochs, int batchSize, bool saveToStorage)
         {
             Random random = ManagedRandom.getRandom();
-            int row = random.Next(dataReader.Height);
+            List <Layer> layers = neuralNetwork.GetLayers();
+            int row = random.Next(dataReader.Height - batchSize);
             //weightDerivatives represents a list of Matrices that can be used to update the weights.
             //derivative * weight * trainingRate = newWeight
-            List<List<Matrix<double>>> batchWeightDerivatives = new List<List<Matrix<double>>>();
+            List<Matrix<double>> newWeightsFinal = new List<Matrix<double>>();
             List<Matrix<double>> weightDerivatives = new List<Matrix<double>>();
+            double[,] weightsArr = layers[2].GetWeightsMatrix(layers[1]);
+            Matrix<double> weights = Matrix<double>.Build.DenseOfArray(weightsArr);
             //Memory intensive operation
             for (int i = 0; i < epochs; i++)
             {
@@ -97,10 +100,20 @@ namespace NeuralNet2023
                 {
                     BackpropogateInitialRun(epochs, saveToStorage, row + k, ref weightDerivatives);
                 }
+                Matrix<double> result = calculateNewWeights(weights, weightDerivatives[2], 1);
+                newWeightsFinal.Add(result);
             }
             //Average adjustments of entire batch
-            int x = 2;
+            
         }
+        internal Matrix<double> calculateNewWeights(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
+        {
+            weightDerivatives.Multiply(trainingRate);
+            weightDerivatives = weightDerivatives.Transpose();
+            Matrix<double> newWeights = oldWeights.PointwiseMultiply(weightDerivatives);
+            return newWeights;
+        }
+
         internal void BackpropogateInitialRun(int epochs, bool saveToStorage, int rowInd, ref List<Matrix<double>> newWeightsStorage)
         {
             (double[] resultsArray, double[] hotCodedArray) = RunSingular(rowInd);
