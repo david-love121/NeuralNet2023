@@ -89,14 +89,19 @@ namespace NeuralNet2023
             int countLayers = layers.Count;
             int countWeightMatrices = layers.Count - 1; 
             int row = random.Next(dataReader.Height - batchSize);
+            List<List<Matrix<double>>> finalAdjustments = new List<List<Matrix<double>>>();
             //weightDerivatives represents a list of Matrices that can be used to update the weights.
             //derivative * weight * trainingRate = newWeight
-            List<Matrix<double>> allNewWeights = new List<Matrix<double>>();
-            List<Matrix<double>> weightDerivatives = new List<Matrix<double>>();
-            
+            for (int k = 0; k < countWeightMatrices - 1; k++)
+            {
+                finalAdjustments.Add(new List<Matrix<double>>());
+            }
+            finalAdjustments.Add(new List<Matrix<double>>());
             //Memory intensive operation
             for (int i = 0; i < epochs; i++)
             {
+                List<Matrix<double>> allNewWeights = new List<Matrix<double>>();
+                List<Matrix<double>> weightDerivatives = new List<Matrix<double>>();
                 for (int k = 0; k < batchSize; k++)
                 {
                     //Returns nothing but has a side effect on weightDerivatives
@@ -115,30 +120,37 @@ namespace NeuralNet2023
                 for (int k = 0; k < countWeightMatrices; k++)
                 {
                     seperatedMatrices.Add(new List<Matrix<double>>());
+                    
                 }
                 for (int k = 0; k < allNewWeights.Count; k++)
                 {
                     int listIndex = k % countWeightMatrices;
                     seperatedMatrices[listIndex].Add(allNewWeights[listIndex]);
                 }
-                //Average everything
+                //Add all adjustments for each epoch into a list
                 for (int k = 0; k < countWeightMatrices; k++)
                 {
+                    int listIndex = k % countWeightMatrices;
                     List<Matrix<double>> currentList = seperatedMatrices[k];
                     Matrix<double> newWeightMatrix = averageWeightMatrices(currentList);
-                    //Assign new weight values
+                    finalAdjustments[listIndex].Add(newWeightMatrix);
                 }
+                
             }
-
-            
-            
+            //Make final adjustments
+            for (int k = 0; k < finalAdjustments.Count; k++)
+            {
+                List<Matrix<double>> adjustmentsList = finalAdjustments[k];
+                Matrix<double> adjustment = averageWeightMatrices(adjustmentsList);
+                double[,] weightsArr = adjustment.ToArray();
+                layers[k + 1].UpdateWeights(weightsArr);
+            }
         }
         internal Matrix<double> calculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
             weightDerivatives.Multiply(trainingRate);
 
             Matrix<double> newWeights = oldWeights.PointwiseMultiply(weightDerivatives);
-            newWeights = newWeights.Multiply(trainingRate);
 
             return newWeights;
         }

@@ -4,6 +4,7 @@ namespace NeuralNet2023 {
         static void Main(string[] args) {
             TestBackprop();
             
+            
         }
         static void TrainNew(int numTests, bool saveToStorage)
         {
@@ -22,7 +23,8 @@ namespace NeuralNet2023 {
         {
             string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
             Driver driver = new Driver(path);
-            driver.TrainBackpropagationBased(1, 10, false);
+            driver.TrainBackpropagationBased(1000, 100, false);
+            driver.Test(50);
         }
     }
 }
