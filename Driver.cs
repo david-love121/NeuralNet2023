@@ -179,14 +179,12 @@ namespace NeuralNet2023
             Vector<double> dadz = DerivativeReLU(zL);
             Vector<double> dcda = results - hotCoded;
             Vector<double> chain = dadz.PointwiseMultiply(dcda);
-            //Vector<double> dcdb = chain;
             Vector<double> a_1L = Vector<double>.Build.DenseOfArray(layers[finalIndex - 2].GetNeuronValues());
             List<Vector<double>> columnVector = new List<Vector<double>>();
             //Finds the new weights
             for (int i = 0; i < a_1L.Count; i++)
             {
                 //The weights belonging to a single a_1
-                //Vector<double> weights = wL.Row(i);
                 double dzdw = a_1L[i];
                 Vector<double> newWeights = chain.Multiply(dzdw);
                 columnVector.Add(newWeights);
@@ -219,8 +217,6 @@ namespace NeuralNet2023
             Matrix<double> wL = Matrix<double>.Build.DenseOfArray(weightsArr);
             double bL = currentLayer.GetBias();
             Vector<double> dadz = DerivativeReLU(zL);
-            Vector<double> dcda = chain;
-            //Vector<double> dcdb = chain;
             chain = dadz.PointwiseMultiply(chain);
             Vector<double> a_1L = Vector<double>.Build.DenseOfArray(layers[currentLayerInd - 1].GetNeuronValues());
             List<Vector<double>> columnVector = new List<Vector<double>>();
@@ -228,7 +224,6 @@ namespace NeuralNet2023
             for (int i = 0; i < a_1L.Count; i++)
             {
                 //The weights belonging to a single a_1
-                //Vector<double> weights = wL.Row(i);
                 double dzdw = a_1L[i];
                 Vector<double> newWeights = chain.Multiply(dzdw);
                 columnVector.Add(newWeights);
