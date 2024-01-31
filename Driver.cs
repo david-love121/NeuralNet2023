@@ -85,36 +85,84 @@ namespace NeuralNet2023
         internal void TrainBackpropagationBased(int epochs, int batchSize, bool saveToStorage)
         {
             Random random = ManagedRandom.getRandom();
-            List <Layer> layers = neuralNetwork.GetLayers();
+            List<Layer> layers = neuralNetwork.GetLayers();
+            int countLayers = layers.Count;
+            int countWeightMatrices = layers.Count - 1; 
             int row = random.Next(dataReader.Height - batchSize);
             //weightDerivatives represents a list of Matrices that can be used to update the weights.
             //derivative * weight * trainingRate = newWeight
-            List<Matrix<double>> newWeightsFinal = new List<Matrix<double>>();
+            List<Matrix<double>> allNewWeights = new List<Matrix<double>>();
             List<Matrix<double>> weightDerivatives = new List<Matrix<double>>();
-            double[,] weightsArr = layers[2].GetWeightsMatrix(layers[1]);
-            Matrix<double> weights = Matrix<double>.Build.DenseOfArray(weightsArr);
+            
             //Memory intensive operation
             for (int i = 0; i < epochs; i++)
             {
                 for (int k = 0; k < batchSize; k++)
                 {
-                    BackpropogateInitialRun(epochs, saveToStorage, row + k, ref weightDerivatives);
+                    //Returns nothing but has a side effect on weightDerivatives
+                    BackpropogateInitialRun(row + k, ref weightDerivatives);
                 }
-                Matrix<double> result = calculateNewWeights(weights, weightDerivatives[2], 1);
-                newWeightsFinal.Add(result);
+                //Multiply derivatives by old weight and training rate
+                for (int k = 0; k < weightDerivatives.Count;  k++)
+                {
+                    int ind = k % countWeightMatrices;
+                    double[,] weightsArr = layers[countWeightMatrices - ind].GetWeightsMatrix(layers[countWeightMatrices - ind - 1]);
+                    Matrix<double> weights = Matrix<double>.Build.DenseOfArray(weightsArr);
+                    Matrix<double> batchChanges = calculateNewWeightMatrix(weights, weightDerivatives[k], 1);
+                    allNewWeights.Add(batchChanges);
+                }
+                List<List<Matrix<double>>> seperatedMatrices = new List<List<Matrix<double>>>();
+                for (int k = 0; k < countWeightMatrices; k++)
+                {
+                    seperatedMatrices.Add(new List<Matrix<double>>());
+                }
+                for (int k = 0; k < allNewWeights.Count; k++)
+                {
+                    int listIndex = k % countWeightMatrices;
+                    seperatedMatrices[listIndex].Add(allNewWeights[listIndex]);
+                }
+                //Average everything
+                for (int k = 0; k < countWeightMatrices; k++)
+                {
+                    List<Matrix<double>> currentList = seperatedMatrices[k];
+                    Matrix<double> newWeightMatrix = averageWeightMatrices(currentList);
+                    //Assign new weight values
+                }
             }
-            //Average adjustments of entire batch
+
+            
             
         }
-        internal Matrix<double> calculateNewWeights(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
+        internal Matrix<double> calculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
             weightDerivatives.Multiply(trainingRate);
-            weightDerivatives = weightDerivatives.Transpose();
+
             Matrix<double> newWeights = oldWeights.PointwiseMultiply(weightDerivatives);
+            newWeights = newWeights.Multiply(trainingRate);
+
             return newWeights;
         }
-
-        internal void BackpropogateInitialRun(int epochs, bool saveToStorage, int rowInd, ref List<Matrix<double>> newWeightsStorage)
+        internal Matrix<double> averageWeightMatrices(List<Matrix<double>> matrices)
+        {
+            int rows = matrices[0].RowCount;
+            int columns = matrices[0].ColumnCount;
+            //Matrices must match in row and column count to average
+            foreach (Matrix<double> matrix in matrices)
+            {
+                if (matrix.RowCount != rows || matrices[0].ColumnCount != columns)
+                {
+                    throw new Exception("Row count and column count must match");
+                }
+            }
+            Matrix<double> averagedMatrix = Matrix<double>.Build.Dense(rows, columns);
+            for (int i = 0; i < matrices.Count; i++)
+            {
+                averagedMatrix = averagedMatrix + matrices[i];
+            }
+            averagedMatrix = averagedMatrix.Divide(matrices.Count);
+            return averagedMatrix;
+        }
+        internal void BackpropogateInitialRun(int rowInd, ref List<Matrix<double>> newWeightsStorage)
         {
             (double[] resultsArray, double[] hotCodedArray) = RunSingular(rowInd);
             Vector<double> results = Vector<double>.Build.DenseOfArray(resultsArray);
@@ -144,6 +192,7 @@ namespace NeuralNet2023
                 columnVector.Add(newWeights);
             }
             Matrix<double> newWeightsL = Matrix<double>.Build.DenseOfColumnVectors(columnVector);
+            newWeightsL = newWeightsL.Transpose();
             double[] previousda = new double[a_1L.Count];
             int count = 0;
             //Finds the derivatives of a_1
@@ -185,6 +234,7 @@ namespace NeuralNet2023
                 columnVector.Add(newWeights);
             }
             Matrix<double> newWeightsL = Matrix<double>.Build.DenseOfColumnVectors(columnVector);
+            newWeightsL = newWeightsL.Transpose();
             double[] previousda = new double[a_1L.Count];
             //Finds the derivatives of a_1
             for (int i = 0; i < a_1L.Count; i++)
