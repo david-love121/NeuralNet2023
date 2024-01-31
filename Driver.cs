@@ -113,7 +113,7 @@ namespace NeuralNet2023
                     int ind = k % countWeightMatrices;
                     double[,] weightsArr = layers[countWeightMatrices - ind].GetWeightsMatrix(layers[countWeightMatrices - ind - 1]);
                     Matrix<double> weights = Matrix<double>.Build.DenseOfArray(weightsArr);
-                    Matrix<double> batchChanges = calculateNewWeightMatrix(weights, weightDerivatives[k], 1);
+                    Matrix<double> batchChanges = CalculateNewWeightMatrix(weights, weightDerivatives[k], 1);
                     allNewWeights.Add(batchChanges);
                 }
                 List<List<Matrix<double>>> seperatedMatrices = new List<List<Matrix<double>>>();
@@ -132,7 +132,7 @@ namespace NeuralNet2023
                 {
                     int listIndex = k % countWeightMatrices;
                     List<Matrix<double>> currentList = seperatedMatrices[k];
-                    Matrix<double> newWeightMatrix = averageWeightMatrices(currentList);
+                    Matrix<double> newWeightMatrix = AverageWeightMatrices(currentList);
                     finalAdjustments[listIndex].Add(newWeightMatrix);
                 }
                 
@@ -141,12 +141,12 @@ namespace NeuralNet2023
             for (int k = 0; k < finalAdjustments.Count; k++)
             {
                 List<Matrix<double>> adjustmentsList = finalAdjustments[k];
-                Matrix<double> adjustment = averageWeightMatrices(adjustmentsList);
+                Matrix<double> adjustment = AverageWeightMatrices(adjustmentsList);
                 double[,] weightsArr = adjustment.ToArray();
                 layers[k + 1].UpdateWeights(weightsArr);
             }
         }
-        internal Matrix<double> calculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
+        internal Matrix<double> CalculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
             weightDerivatives.Multiply(trainingRate);
 
@@ -154,7 +154,7 @@ namespace NeuralNet2023
 
             return newWeights;
         }
-        internal Matrix<double> averageWeightMatrices(List<Matrix<double>> matrices)
+        internal Matrix<double> AverageWeightMatrices(List<Matrix<double>> matrices)
         {
             int rows = matrices[0].RowCount;
             int columns = matrices[0].ColumnCount;
