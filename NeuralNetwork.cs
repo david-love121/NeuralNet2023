@@ -20,7 +20,7 @@ namespace NeuralNet2023
         Layer firstLayer;
         //Including input layer and output layer
         int[] layerSizes = { 4, 5, 3};
-        string[] activationFunctions = { "ReLU", "ReLU", "None" };
+        string[] activationFunctions = { "Leaky_ReLU", "Leaky_ReLU", "None" };
         double[]? weights;
         double[]? output;
         internal NeuralNetwork() 

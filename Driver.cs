@@ -82,16 +82,16 @@ namespace NeuralNet2023
             //bool check = ReferenceEquals(checkNetwork, bestNetwork);
             neuralNetwork = new NeuralNetwork(bestNetwork);
         }
-        internal void TrainBackpropagationBased(int epochs, int batchSize, bool saveToStorage)
+        internal void TrainBackpropagationBased(int epochs, int batchSize, bool saveToStorage, double learningRate)
         {
             Random random = ManagedRandom.getRandom();
             List<Layer> layers = neuralNetwork.GetLayers();
             int countLayers = layers.Count;
             int countWeightMatrices = layers.Count - 1; 
-            int row = random.Next(dataReader.Height - batchSize);
+            //int row = random.Next(dataReader.Height - batchSize);
             List<List<Matrix<double>>> finalAdjustments = new List<List<Matrix<double>>>();
             //weightDerivatives represents a list of Matrices that can be used to update the weights.
-            //derivative * weight * trainingRate = newWeight
+            //weight + (derivative * trainingRate) = newWeight
             for (int k = 0; k < countWeightMatrices - 1; k++)
             {
                 finalAdjustments.Add(new List<Matrix<double>>());
@@ -105,7 +105,7 @@ namespace NeuralNet2023
                 for (int k = 0; k < batchSize; k++)
                 {
                     //Returns nothing but has a side effect on weightDerivatives
-                    BackpropogateInitialRun(row + k, ref weightDerivatives);
+                    BackpropogateInitialRun(51, ref weightDerivatives);
                 }
                 //Multiply derivatives by old weight and training rate
                 for (int k = 0; k < weightDerivatives.Count;  k++)
@@ -113,7 +113,7 @@ namespace NeuralNet2023
                     int ind = k % countWeightMatrices;
                     double[,] weightsArr = layers[countWeightMatrices - ind].GetWeightsMatrix(layers[countWeightMatrices - ind - 1]);
                     Matrix<double> weights = Matrix<double>.Build.DenseOfArray(weightsArr);
-                    Matrix<double> batchChanges = CalculateNewWeightMatrix(weights, weightDerivatives[k], 1);
+                    Matrix<double> batchChanges = CalculateNewWeightMatrix(weights, weightDerivatives[k], learningRate);
                     allNewWeights.Add(batchChanges);
                 }
                 List<List<Matrix<double>>> seperatedMatrices = new List<List<Matrix<double>>>();
@@ -148,9 +148,9 @@ namespace NeuralNet2023
         }
         internal Matrix<double> CalculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
-            weightDerivatives.Multiply(trainingRate);
-
+            weightDerivatives = weightDerivatives.Multiply(trainingRate);
             Matrix<double> newWeights = oldWeights.PointwiseMultiply(weightDerivatives);
+            // Matrix<double> newWeights = oldWeights + weightDerivatives;
 
             return newWeights;
         }
@@ -205,7 +205,7 @@ namespace NeuralNet2023
             newWeightsL = newWeightsL.Transpose();
             double[] previousda = new double[a_1L.Count];
             int count = 0;
-            //Finds the derivatives of a_1
+            //Finds the derivatives of a_1 - potentially problematic a_1 is very low
             for (int i = 0; i < a_1L.Count; i++)
             {
                 double a_1 = a_1L[i];
@@ -220,7 +220,8 @@ namespace NeuralNet2023
             //Continue to interate
             Backpropagate(dcda_1L, finalIndex - 2, ref newWeightsStorage);
         }
-        //Use lastDerivativeActivation to continue to backpropagate 
+        //Use lastDerivativeActivation to continue to backpropagate
+        // Error, chain is 0 here
         private void Backpropagate(Vector<double> chain, int currentLayerInd, ref List<Matrix<double>> newWeightsStorage) {
             List<Layer> layers = neuralNetwork.GetLayers();
             Layer currentLayer = layers[currentLayerInd];
@@ -266,7 +267,7 @@ namespace NeuralNet2023
         
         static internal Vector<double> DerivativeReLU(Vector<double> value)
         {
-            Vector<double> result = value.Map(value => value > 0 ? 1.0 : 0.0);
+            Vector<double> result = value.Map(value => value > 0 ? 1.0 : 0.1);
             return result;
         }
         internal double[] Run()

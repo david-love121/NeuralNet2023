@@ -112,7 +112,7 @@
         {
             foreach (Connector connector in connectors)
             {
-                connector.SetWeight((random.NextDouble() + 0.05));
+                connector.SetWeight((random.NextDouble() + 0.05)*4-2);
             }
         }
         internal double[,] GetWeightsMatrix(Layer lastLayer)
