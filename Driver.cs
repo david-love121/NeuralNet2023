@@ -19,7 +19,6 @@ namespace NeuralNet2023
         internal NeuralNetwork bestNetwork;
         List<string> guesses;
         List<bool> guessesBool;
-        Vector<double> lastDerivativeActivation;
         internal Driver()
         {
             dataReader = new DataReader();
@@ -36,7 +35,6 @@ namespace NeuralNet2023
         }
         internal void Test(int numTests)
         {
-            double[,] features = dataReader.GetFeatures();
             string[] answers = dataReader.GetAnswers();
             string[] classifications = dataReader.GetClassifications();
             int countCorrect = 0;
@@ -47,7 +45,6 @@ namespace NeuralNet2023
                 countTotal++;
                 int rowInd = (int)random.NextInt64(150);
                 double[] output = neuralNetwork.RunData(dataReader.GetRow(rowInd));
-                double[] normalizedOutput = new double[output.Length];
                 double highestProbability = 0;
                 int indHighest = 0;
                 for (int k = 0; k < output.Length; k++)
@@ -231,8 +228,7 @@ namespace NeuralNet2023
             //Continue to interate
             Backpropagate(dcda_1L, finalIndex - 2, ref newWeightsStorage);
         }
-        //Use lastDerivativeActivation to continue to backpropagate
-        // Error, chain is 0 here
+        
         private void Backpropagate(Vector<double> chain, int currentLayerInd, ref List<Matrix<double>> newWeightsStorage) {
             List<Layer> layers = neuralNetwork.GetLayers();
             Layer currentLayer = layers[currentLayerInd];
