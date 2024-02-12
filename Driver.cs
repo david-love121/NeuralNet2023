@@ -105,7 +105,7 @@ namespace NeuralNet2023
                 for (int k = 0; k < batchSize; k++)
                 {
                     //Returns nothing but has a side effect on weightDerivatives
-                    BackpropogateInitialRun(51, ref weightDerivatives);
+                    BackpropogateInitialRun(0 + k, ref weightDerivatives);
                 }
                 //Multiply derivatives by old weight and training rate
                 for (int k = 0; k < weightDerivatives.Count;  k++)
@@ -140,16 +140,17 @@ namespace NeuralNet2023
             //Make final adjustments
             for (int k = 0; k < finalAdjustments.Count; k++)
             {
-                List<Matrix<double>> adjustmentsList = finalAdjustments[k];
+                List<Matrix<double>> adjustmentsList = finalAdjustments[finalAdjustments.Count - 1 - k];
                 Matrix<double> adjustment = AverageWeightMatrices(adjustmentsList);
                 double[,] weightsArr = adjustment.ToArray();
+                //Check that indexes are matching here?
                 layers[k + 1].UpdateWeights(weightsArr);
             }
         }
         internal Matrix<double> CalculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
             weightDerivatives = weightDerivatives.Multiply(trainingRate);
-            Matrix<double> newWeights = oldWeights.PointwiseMultiply(weightDerivatives);
+            Matrix<double> newWeights = oldWeights + weightDerivatives;
             // Matrix<double> newWeights = oldWeights + weightDerivatives;
 
             return newWeights;
@@ -272,7 +273,6 @@ namespace NeuralNet2023
         }
         internal double[] Run()
         {
-            bool check = ReferenceEquals(bestNetwork, neuralNetwork);
             guesses.Clear();
             guessesBool.Clear();
             //List<string> allData = dataReader.GetData();

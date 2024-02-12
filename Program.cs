@@ -2,8 +2,8 @@
 namespace NeuralNet2023 {
     class Program {  
         static void Main(string[] args) {
-            //TrainNew(30000, true);
-            TestBackprop(2, 1000, 150);
+            LoadFromStorage();
+            
             
         }
         static void TrainNew(int numTests, bool saveToStorage)
@@ -16,7 +16,7 @@ namespace NeuralNet2023 {
         {
             string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
             Driver driver = new Driver(path);
-            double[] check2 = driver.Run();
+            TestBackprop(0.1, 10000, 150);
             driver.Test(50);
         }
         static void TestBackprop(double learningRate, int epochs, int batchSize)

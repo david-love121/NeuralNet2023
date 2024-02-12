@@ -133,11 +133,13 @@
         {
             int height = weights.GetLength(0);
             int width = weights.GetLength(1);
+            int count = 0;
             for (int i = 0; i < height; i++)
             {
                 for (int k = 0; k < width; k++)
                 {
-                    connectors[i * k].SetWeight(weights[i, k]);
+                    connectors[count].SetWeight(weights[i, k]);
+                    count++;
                 }
             }
         }
