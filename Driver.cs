@@ -38,9 +38,13 @@ namespace NeuralNet2023
         {
             double[,] features = dataReader.GetFeatures();
             string[] answers = dataReader.GetAnswers();
+            string[] classifications = dataReader.GetClassifications();
+            int countCorrect = 0;
+            int countTotal = 0;
             Random random = ManagedRandom.getRandom();
             for (int i = 0; i < numTests; i++)
             {
+                countTotal++;
                 int rowInd = (int)random.NextInt64(150);
                 double[] output = neuralNetwork.RunData(dataReader.GetRow(rowInd));
                 double[] normalizedOutput = new double[output.Length];
@@ -54,8 +58,14 @@ namespace NeuralNet2023
                         indHighest = k;
                     }
                 }
-                Console.WriteLine($"Test {i}: Running row {rowInd} Prediction: {dataReader.GetClassifications()[indHighest]} Answer: {answers[rowInd]}");
+                if (answers[rowInd] == classifications[indHighest])
+                {
+                    countCorrect++;
+                }
+                Console.WriteLine($"Test {i}: Running row {rowInd} Prediction: {classifications[indHighest]} Answer: {answers[rowInd]}");
+                
             }
+            Console.WriteLine($"Test Complete: {countCorrect} Tested, {countTotal} Correct");
         }
         
         internal void TrainEvolutionBased(int numIterations, bool saveToStorage)
