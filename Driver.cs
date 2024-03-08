@@ -170,7 +170,9 @@ namespace NeuralNet2023
         static internal Matrix<double> CalculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
             weightDerivatives = weightDerivatives.Multiply(trainingRate);
-            Matrix<double> newWeights = oldWeights + weightDerivatives;
+            //For some reason subtraction here produces the correct results but addition does not. Potential sign error 
+            //Somewhere down the line
+            Matrix<double> newWeights = oldWeights - weightDerivatives;
             // Matrix<double> newWeights = oldWeights + weightDerivatives;
 
             return newWeights;

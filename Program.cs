@@ -7,8 +7,10 @@ namespace NeuralNet2023 {
             Driver driver = LoadFromStorage();
             double[] output = driver.RunTestFunction();
             double accuracyPreBackprop = driver.CheckTestFunctionAccuracy();
-            driver.TrainBackpropagationBased(10000, 1000, 3, false, 0.5);
+            driver.TrainBackpropagationBased(1000, 100, 45, false, 1);
             double accuracyPostBackprop = driver.CheckTestFunctionAccuracy();
+            driver.TrainBackpropagationBased(1000, 100, 15, false, 1);
+            double accuracyPostBackprop2 = driver.CheckTestFunctionAccuracy();
             int x = 2;
 
         }
