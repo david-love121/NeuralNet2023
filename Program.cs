@@ -4,27 +4,31 @@ using static System.Net.Mime.MediaTypeNames;
 namespace NeuralNet2023 {
     class Program {  
         static void Main(string[] args) {
-            Driver driver = TrainNew(10000, false);
-            //driver.TrainBackpropagationBased(10000, 150, 3, false, 0.1);
-           // driver.Test(149);
-
+            Driver driver = LoadFromStorage();
+            double[] output = driver.RunTestFunction();
+            double accuracyPreBackprop = driver.CheckTestFunctionAccuracy();
+            driver.TrainBackpropagationBased(10000, 1000, 3, false, 0.5);
+            double accuracyPostBackprop = driver.CheckTestFunctionAccuracy();
+            int x = 2;
 
         }
         static Driver TrainNew(int numTests, bool saveToStorage)
         {
             Driver driver = new Driver();
             driver.TrainEvolutionBased(numTests, saveToStorage);
-            driver.TrainBackpropagationBased(10000, 200, 4, false, 0.1);
+            //driver.TrainBackpropagationBased(10000, 200, 4, false, 0.1);
             //driver.Test(50);
             double[] score = driver.RunTestFunction();
+            double accuracy = driver.CheckTestFunctionAccuracy();
+
             return driver;
         }
-        static void LoadFromStorage()
+        static Driver LoadFromStorage()
         {
             string path = "C:\\Users\\David\\source\\repos\\NeuralNet2023\\lastNetwork.json";
             Driver driver = new Driver(path);
+            return driver;
             
-            driver.Test(50);
         }
         static void TestBackprop(Driver driver, double learningRate, int tests, int batchSize)
         {

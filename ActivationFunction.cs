@@ -14,10 +14,13 @@ namespace NeuralNet2023
         string selectedFunction = "ReLU";
         string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid", "Sin", "Linear"};
         int coefficient;
-        public ActivationFunction(string t, int coefficient)
+        //intercept for use with linear
+        int b;
+        public ActivationFunction(string t, int coefficient, int b = 0)
         {
             selectedFunction = t;
             this.coefficient = coefficient;
+            this.b = b;
         }
         public ActivationFunction(string t)
         {
@@ -53,7 +56,7 @@ namespace NeuralNet2023
             }
             if (selectedFunction == "Linear")
             {
-                return input * coefficient;
+                return input * coefficient + b;
             }
             return input;
         }

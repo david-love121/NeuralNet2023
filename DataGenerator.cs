@@ -14,7 +14,7 @@ namespace NeuralNet2023
         internal int numPoints { get; private set; }
         internal DataGenerator(int points) 
         {
-            function = new ActivationFunction("Sin", 1);
+            function = new ActivationFunction("Linear", 3, 1);
             data = new double[points];
             numPoints = points;
             PopulateData(points);

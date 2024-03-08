@@ -23,6 +23,7 @@ namespace NeuralNet2023
         string[] activationFunctions = { "Leaky_ReLU", "Leaky_ReLU", "None" };
         double[]? weights;
         double[]? output;
+        double[]? biases;
         internal NeuralNetwork() 
         {
             firstLayer = new Layer();
@@ -50,8 +51,10 @@ namespace NeuralNet2023
             firstLayer = new Layer();
             weights = neuralNetworkMetadata.weights;
             layerSizes = neuralNetworkMetadata.layerSizes;
-            activationFunctions= neuralNetworkMetadata.activationFunctions;
+            activationFunctions = neuralNetworkMetadata.activationFunctions;
+            biases = neuralNetworkMetadata.biases;
             GenerateLayers();
+            SetBiases(biases);
         }
 
         internal void SetFirst(double[] inputs)
@@ -101,10 +104,12 @@ namespace NeuralNet2023
             for (int i = 0; i < layerSizes.Count(); i++)
             {
                 Layer layer = new Layer();
+                
                 for (int k = 0; k < layerSizes[i]; k++)
                 {
                     Neuron neuron = new Neuron(new ActivationFunction(activationFunctions[i]));
                     layer.AddNeuron(neuron);
+                    
                     
                 }
                 layers.Add(layer);
@@ -136,9 +141,19 @@ namespace NeuralNet2023
             lastLayer.SetLast(true);
             return;
         }
-       
-        //This overload is used when you are generating from a neuralNetwork that already exists
 
+        //This overload is used when you are generating from a neuralNetwork that already exists
+        private void SetBiases(double[] biases)
+        {
+            if (biases.Length != layers.Count)
+            {
+                throw new Exception("Biases does not match number of layers");
+            }
+            for (int i = 0; i < layers.Count; i++)
+            {
+                layers[i].SetBias(biases[i]);
+            }
+        }
         private void GenerateLayers(List<Layer> original)
         {
             Layer? lastLayer = null;
@@ -222,6 +237,16 @@ namespace NeuralNet2023
             }
             double[] finalWeights = weightsList.ToArray();
             return finalWeights;
+        }
+        internal double[] GetBiasesArray()
+        {
+            List<double> biases = new List<double>();
+            foreach (Layer layer in layers)
+            {
+                double bias = layer.GetBias();
+                biases.Add(bias);
+            }
+            return biases.ToArray();
         }
         //Only works properly with public getters and setters, need to find a way 
         //To just save metadata to disk

@@ -34,6 +34,7 @@ namespace NeuralNet2023
             neuralNetwork = NeuralNetwork.LoadObjectFromStorage(objectPath);
             guesses = new List<string>();
             guessesBool = new List<bool>();
+            dataGenerator = new DataGenerator(1000);
         }
         internal void Test(int numTests)
         {
@@ -82,6 +83,10 @@ namespace NeuralNet2023
                     highestScore = score;
                     Console.WriteLine($"New best score: {highestScore}");
                     bestNetwork = new NeuralNetwork(neuralNetwork);
+                }
+                if (score == 1)
+                {
+                    break;
                 }
                 neuralNetwork.RandomizeWeights();
                 neuralNetwork.RandomizeBiases();
@@ -282,8 +287,35 @@ namespace NeuralNet2023
         
         static internal Vector<double> DerivativeReLU(Vector<double> value)
         {
-            Vector<double> result = value.Map(value => value > 0 ? 1.0 : 0.1);
+            Vector<double> result = value.Map(value => value > 0 ? 1.0 : 0.01);
             return result;
+        }
+        internal double CheckTestFunctionAccuracy()
+        {
+            guesses.Clear();
+            guessesBool.Clear();
+            //averageAccuracy represents the percentage difference between the number
+            //The neural net generates and the function. Closer to zero is better
+            double[] averageAccuracy = new double[dataGenerator.numPoints];
+            for (int i = 0; i < dataGenerator.numPoints; i++)
+            {
+                (double[] output, double[] answer) = RunTestFunctionSingular(i);
+                double margin = output[0] - answer[0];
+                double average = (output[0] + answer[0]) / 2;
+                double accuracy;
+                if (average == 0)
+                {
+                    accuracy = 0;
+                }
+                else
+                {
+                    accuracy = Math.Abs(margin / average);
+                }
+                averageAccuracy[i] = accuracy;
+            }
+            double finalAccuracy = averageAccuracy.Sum() / (double) dataGenerator.numPoints;
+            return finalAccuracy;
+
         }
         internal double[] RunTestFunction()
         {
