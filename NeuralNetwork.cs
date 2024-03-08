@@ -19,7 +19,7 @@ namespace NeuralNet2023
         internal List<Layer> layers;
         Layer firstLayer;
         //Including input layer and output layer
-        int[] layerSizes = { 4, 5, 3};
+        int[] layerSizes = { 1, 1, 1};
         string[] activationFunctions = { "Leaky_ReLU", "Leaky_ReLU", "None" };
         double[]? weights;
         double[]? output;
@@ -79,6 +79,19 @@ namespace NeuralNet2023
             double[] output = vf.runSoftmax(finalLogits);
             Reset();
             SetOutputLayer(output);
+            return output;
+        }
+        //For only a singular input, used in testing
+        internal double RunData(double input)
+        {
+            Neuron firstNeuron = firstLayer.GetNeurons()[0];
+            firstNeuron.AddInput(input);
+            firstLayer.RunLayersRecursive();
+            Neuron outputNeuron = layers.Last().GetNeurons()[0];
+            double output = outputNeuron.RunNeuron();
+            double[] outputLayer = { output };
+            Reset();
+            SetOutputLayer(outputLayer);
             return output;
         }
         private void GenerateLayers()
@@ -163,6 +176,13 @@ namespace NeuralNet2023
             foreach (Layer l in layers)
             {
                 l.RandomizeWeights();
+            }
+        }
+        internal void RandomizeBiases()
+        {
+            foreach (Layer l in layers)
+            {
+                l.RandomizeBias();
             }
         }
         internal int[] GetLayerSizes()

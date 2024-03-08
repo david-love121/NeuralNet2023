@@ -5,8 +5,8 @@ namespace NeuralNet2023 {
     class Program {  
         static void Main(string[] args) {
             Driver driver = TrainNew(10000, false);
-            driver.TrainBackpropagationBased(10000, 150, 3, false, 0.1);
-            driver.Test(149);
+            //driver.TrainBackpropagationBased(10000, 150, 3, false, 0.1);
+           // driver.Test(149);
 
 
         }
@@ -14,7 +14,9 @@ namespace NeuralNet2023 {
         {
             Driver driver = new Driver();
             driver.TrainEvolutionBased(numTests, saveToStorage);
-            driver.Test(50);
+            driver.TrainBackpropagationBased(10000, 200, 4, false, 0.1);
+            //driver.Test(50);
+            double[] score = driver.RunTestFunction();
             return driver;
         }
         static void LoadFromStorage()
