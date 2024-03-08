@@ -115,6 +115,10 @@
                 connector.SetWeight((random.NextDouble() + 0.05)*4-2);
             }
         }
+        internal void RandomizeBias()
+        {
+            bias = random.NextDouble() * 2;
+        }
         internal double[,] GetWeightsMatrix(Layer lastLayer)
         {
             int count = 0;

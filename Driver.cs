@@ -15,6 +15,7 @@ namespace NeuralNet2023
     internal class Driver
     {
         DataReader dataReader;
+        DataGenerator dataGenerator;
         internal NeuralNetwork neuralNetwork;
         internal NeuralNetwork bestNetwork;
         List<string> guesses;
@@ -25,6 +26,7 @@ namespace NeuralNet2023
             neuralNetwork = new NeuralNetwork();
             guesses = new List<string>(); 
             guessesBool = new List<bool>();
+            dataGenerator = new DataGenerator(1000);
         }
         internal Driver(string objectPath)
         {
@@ -44,7 +46,8 @@ namespace NeuralNet2023
             {
                 countTotal++;
                 int rowInd = (int)random.NextInt64(150);
-                double[] output = neuralNetwork.RunData(dataReader.GetRow(rowInd));
+                (double[] output, double[] hotCoded) = RunSingularClassification(rowInd);
+                //double[] output = neuralNetwork.RunData(dataReader.GetRow(rowInd));
                 double highestProbability = 0;
                 int indHighest = 0;
                 for (int k = 0; k < output.Length; k++)
@@ -71,7 +74,8 @@ namespace NeuralNet2023
             double score;
             for (int i = 0; i < numIterations; i++) 
             {
-                double[] results = Run();
+                double[] results = RunTestFunction();
+                //double[] results = RunClassification();
                 score = results[1] / results[0];
                 if (score > highestScore)
                 {
@@ -80,6 +84,7 @@ namespace NeuralNet2023
                     bestNetwork = new NeuralNetwork(neuralNetwork);
                 }
                 neuralNetwork.RandomizeWeights();
+                neuralNetwork.RandomizeBiases();
             }
             if (saveToStorage)
             {
@@ -157,7 +162,7 @@ namespace NeuralNet2023
                 }
             }
         }
-        internal Matrix<double> CalculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
+        static internal Matrix<double> CalculateNewWeightMatrix(Matrix<double> oldWeights, Matrix<double> weightDerivatives, double trainingRate)
         {
             weightDerivatives = weightDerivatives.Multiply(trainingRate);
             Matrix<double> newWeights = oldWeights + weightDerivatives;
@@ -165,7 +170,7 @@ namespace NeuralNet2023
 
             return newWeights;
         }
-        internal Matrix<double> AverageWeightMatrices(List<Matrix<double>> matrices)
+        static internal Matrix<double> AverageWeightMatrices(List<Matrix<double>> matrices)
         {
             int rows = matrices[0].RowCount;
             int columns = matrices[0].ColumnCount;
@@ -187,7 +192,8 @@ namespace NeuralNet2023
         }
         internal void BackpropogateInitialRun(int rowInd, ref List<Matrix<double>> newWeightsStorage)
         {
-            (double[] resultsArray, double[] hotCodedArray) = RunSingular(rowInd);
+            //(double[] resultsArray, double[] hotCodedArray) = RunSingularClassification(rowInd);
+            (double[] resultsArray, double[] hotCodedArray) = RunTestFunctionSingular(rowInd);
             Vector<double> results = Vector<double>.Build.DenseOfArray(resultsArray);
             Vector<double> hotCoded = Vector<double>.Build.DenseOfArray(hotCodedArray);
             //Where a is a neuron's value post activation, n the value pre activation, w the weight, b the bias
@@ -279,7 +285,35 @@ namespace NeuralNet2023
             Vector<double> result = value.Map(value => value > 0 ? 1.0 : 0.1);
             return result;
         }
-        internal double[] Run()
+        internal double[] RunTestFunction()
+        {
+            guesses.Clear();
+            guessesBool.Clear();
+            int correctGuesses = 0;
+            int totalGuesses = dataGenerator.numPoints;
+            for (int i = 0; i < dataGenerator.numPoints; i++)
+            {
+                (double[] output, double[] answer) = RunTestFunctionSingular(i);
+                double margin = output[0] - answer[0];
+                if (Math.Abs(margin) < 0.1)
+                {
+                    correctGuesses++;
+                }
+            }
+            double[] finalScore = {totalGuesses, correctGuesses};
+            return finalScore;
+        }
+        //Returning these as an array to keep datatypes consistent
+        internal (double[], double[]) RunTestFunctionSingular(int row)
+        {
+            double value = dataGenerator.GetDataPoint(row);
+            double[] output = { neuralNetwork.RunData(value) };
+            double[] answer = { dataGenerator.GetDataPoint(row) };
+
+            return new(output, answer);
+
+        }
+        internal double[] RunClassification()
         {
             guesses.Clear();
             guessesBool.Clear();
@@ -315,8 +349,9 @@ namespace NeuralNet2023
             return finalScore;
             //Todo: load data in from DataReader and then push into NeuralNetwork
         }
+       
         //Returns the prediction and the 1 hot coded solution vector
-        internal (double[], double[]) RunSingular(int row)
+        internal (double[], double[]) RunSingularClassification(int row)
         {
             string[] answers = dataReader.GetAnswers();
             double[] output = neuralNetwork.RunData(dataReader.GetRow(row));

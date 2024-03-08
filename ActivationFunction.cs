@@ -7,13 +7,22 @@ using System.Threading.Tasks;
 
 namespace NeuralNet2023
 {
+    //Slight misnomer, this should just be called Function as it now contains definitions for more than the activation functions,
+    //But I will keep it like this for now
     internal class ActivationFunction
     {
         string selectedFunction = "ReLU";
-        string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid"};
+        string[] types = { "ReLU", "Leaky_ReLU", "Sigmoid", "Sin", "Linear"};
+        int coefficient;
+        public ActivationFunction(string t, int coefficient)
+        {
+            selectedFunction = t;
+            this.coefficient = coefficient;
+        }
         public ActivationFunction(string t)
         {
             selectedFunction = t;
+            coefficient = 1;
         }
         public ActivationFunction()
         {
@@ -37,6 +46,14 @@ namespace NeuralNet2023
             if (selectedFunction == "Sigmoid")
             {
                 return 1.0 / (1.0 + Math.Exp(-input));
+            }
+            if (selectedFunction == "Sin")
+            {
+                return Math.Sin(input) * coefficient;
+            }
+            if (selectedFunction == "Linear")
+            {
+                return input * coefficient;
             }
             return input;
         }
